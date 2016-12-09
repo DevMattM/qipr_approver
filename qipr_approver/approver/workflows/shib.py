@@ -1,6 +1,8 @@
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.backends import ModelBackend
 from django.utils import timezone
 
 from approver.models import Person
@@ -32,6 +34,8 @@ def after_validation(request):
     add_shib_information_to_session(request)
     if len(User.objects.filter(username=gatorlink)) == 0:
         new_user = user_crud.create_new_user_from_current_session(request.session)
+        authenticate(username=gatorlink, password=None)
+        login(request, new_user)
         response = redirect(reverse("approver:aboutyou"))
         return response
     else:
@@ -39,9 +43,8 @@ def after_validation(request):
         user.person.last_login_time = timezone.now()
         user.person.account_expiration_time=utils.get_account_expiration_date(timezone.now())
         user.person.save(user)
-        if user.is_superuser == 1:
-            request.session['su'] = True
-        else:
-            request.session['su'] = False
+        authenticate(username=gatorlink, password=None)
+        login(request, user)
+        request.session['su'] = user.person.is_admin
         return redirect(reverse("approver:dashboard"))
 
