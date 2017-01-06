@@ -88,3 +88,8 @@ celerybeat-schedule
 #Vagrant machine stuff
 .vagrant
 .swp
+
+# virtualenv
+venv/
+ENV/
+

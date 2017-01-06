@@ -12,7 +12,6 @@ function configure_base() {
 
    # Update packages
    apt-get update -y
-   #apt-get upgrade -y
 }
 
 function install_utils() {
@@ -105,8 +104,8 @@ function apply_fixtures() {
 
 function install_qipr_approver_fresh_vm () {
     pushd /var/www/qipr/approver
-        #create_virtualenv
-        #pip_dependencies
+        create_virtualenv
+        pip_dependencies
         create_database
         migrate_application_database
         apply_fixtures
@@ -116,8 +115,8 @@ function install_qipr_approver_fresh_vm () {
 
 function install_qipr_approver() {
     pushd /var/www/qipr/approver
-        #create_virtualenv
-        #pip_dependencies
+        create_virtualenv
+        pip_dependencies
         migrate_application_database
         apply_fixtures
     popd
