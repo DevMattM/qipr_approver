@@ -180,7 +180,10 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Email settings for application
+MEDIA_ROOT = get_config('qipr_media_path')
+MEDIA_URL = get_config('qipr_media_url')
+
+# Email settings for application wV
 QIPR_EMAIL_HOST = get_config('smtp_host', 'email')
 QIPR_EMAIL_PORT = get_config('smtp_port', 'email')
 QIPR_EMAIL_HOSTNAME = get_config('email_hostname', 'email')
@@ -188,7 +191,7 @@ QIPR_EMAIL_RETURN_ADDR = get_config('email_return_addr', 'email')
 QIPR_EMAIL_DEBUG = get_config('email_debug', 'email') == 'true'
 
 if QIPR_EMAIL_DEBUG:
-    EMAIL_FILE_PATH = '/tmp/app-messages'
+    EMAIL_FILE_PATH = '/qipr/app-messages'
     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 

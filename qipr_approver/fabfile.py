@@ -53,8 +53,8 @@ import configparser, string, random, os
 config = configparser.ConfigParser()
 settings_file_path = 'qipr_approver/deploy/settings.ini' #path to where app is looking for settings.ini
 
-def get_config(key):
-    return config.get("fabric_deploy", key)
+def get_config(key, section='fabric_deploy'):
+    return config.get(section, key)
 
 def define_env():
     """
@@ -71,6 +71,7 @@ def define_env():
     env.user = get_config('deploy_user') #default ssh deploy user account
     env.project_name = get_config('project_name')
     env.project_settings_path = get_config('project_settings_path')
+    env.project_media_path = (get_config('qipr_media_path', config.default_section))
     env.live_project_full_path = get_config('live_pre_path') + "/" + get_config('project_path') #
     env.backup_project_full_path = get_config('backup_pre_path') + "/" + get_config('project_path')
     env.key_filename = get_config('ssh_keyfile_path')
@@ -249,13 +250,16 @@ def setup_webspace():
     """
     sudo("mkdir -p %(live_project_full_path)s" % env)
     sudo("mkdir -p %(backup_project_full_path)s/archive" % env)
+    sudo("mkdir -p %(project_media_path)s" % env)
 
     #Change the permissions to match the correct user and group
-    sudo("chown -R %s.%s /var/www.backup" % (get_config('deploy_user'), get_config('deploy_user_group')))
-    sudo("chmod -R 755 /var/www.backup")
+    set_deploy_permissions_on('/var/www.backup')
+    set_deploy_permissions_on('/var/www')
+    set_deploy_permissions_on('/qipr')
 
-    sudo("chown -R %s.%s /var/www" % (get_config('deploy_user'), get_config('deploy_user_group')))
-    sudo("chmod -R 755 /var/www/")
+def set_deploy_permissions_on(file_path):
+    sudo("chown -R %s.%s %s" % (get_config('deploy_user'), get_config('deploy_user_group'), file_path))
+    sudo("chmod -R 755 %s" % (file_path))
 
 @task
 def setup_server():
