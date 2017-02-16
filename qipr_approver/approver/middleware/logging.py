@@ -2,6 +2,8 @@ from approver.constants import SESSION_VARS, SHIB_ENABLED
 from approver.models import AccessLog
 from approver import utils
 
+import base64
+from django.utils.http import urlencode
 def log_access(get_response):
     """
     This is a decorator that will log people's access
@@ -34,8 +36,16 @@ def __before_view(request):
     user_agent_data = request.META.get('HTTP_USER_AGENT')
     user_agent_string = user_agent_data.encode('utf-8') if user_agent_data else 'NONE'.encode('utf-8')
     http_verb = request.method
-    request_body = request.body
 
+    # If the submitted request is part of a multipart form, we dont
+    # want the submitted file data
+    if "multipart" not in request.content_type:
+        request_body = request.body
+    else:
+        request_body = request.POST.urlencode()
+        if request.FILES:
+            file_names = [(form_field, uploaded_file.name) for form_field, uploaded_file in request.FILES.items()]
+            request_body += '&' + urlencode(file_names, True)
     log = AccessLog(gatorlink=gatorlink,
                     ip=ip,
                     url=url,

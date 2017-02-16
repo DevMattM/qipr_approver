@@ -13,19 +13,19 @@ from django.urls import reverse
 
 from approver.workflows import contact_person
 
-def create_or_update_project(current_user, project_form, project_id=None):
+def create_or_update_project(current_user, project_form, project_id=None, project_charter_file=None):
     """
     Creates a new project or updates and existing one using a project form
     """
     project = None
     if project_exists(project_id):
         project = Project.objects.get(id=project_id)
-        update_project_from_project_form(project, project_form, current_user)
+        update_project_from_project_form(project, project_form, current_user, project_charter_file)
     else:
-        project = create_new_project_from_user_form(current_user, project_form)
+        project = create_new_project_from_user_form(current_user, project_form, project_charter_file)
     return project
 
-def create_new_project_from_user_form(current_user, form):
+def create_new_project_from_user_form(current_user, form, charter_file=None):
     """
     This function creates a project using user information
     from the current session and a title
@@ -37,11 +37,11 @@ def create_new_project_from_user_form(current_user, form):
 
     new_project.save(last_modified_by=current_user)
 
-    update_project_from_project_form(new_project, form, current_user)
+    update_project_from_project_form(new_project, form, current_user, charter_file)
 
     return new_project
 
-def update_project_from_project_form(project, project_form, editing_user):
+def update_project_from_project_form(project, project_form, editing_user, charter_file=None):
     """
     This function changes an existing project entry
     based on the information in the project_form.
@@ -62,6 +62,8 @@ def update_project_from_project_form(project, project_form, editing_user):
     clinical_area = extract_tags(project_form, 'clinical_area')
     clinical_setting = extract_tags(project_form, 'clinical_setting')
     mesh_keyword = extract_tags(project_form, 'mesh_keyword')
+    if charter_file:
+        project.charter_file.save('project_charter', charter_file, False)
 
     project.collaborator = contact_person.get_collaborators_from_form(project_form, editing_user)
     project.advisor = contact_person.get_advisors_from_form(project_form, editing_user)

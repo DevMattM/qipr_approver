@@ -24,22 +24,33 @@ def project(request, project_id=None):
     current_user = request.user
     if request.method == 'POST':
         project_form = request.POST
-        title = project_form.get('title')
+        project_charter_file = request.FILES.get('project_charter', None)
         project = project_crud.get_project_or_none(project_id)
         if(project is None):
-            project = project_crud.create_or_update_project(current_user, project_form, project_id)
+            project = project_crud.create_or_update_project(current_user,
+                                                            project_form,
+                                                            project_id,
+                                                            project_charter_file)
             request.access_log.model = project
 
         else:
-            if project.archived and not project_crud.current_user_is_superuser(current_user):
-                return utils.dashboard_redirect_and_toast(request, 'Project is Archived.')
             if project_crud.current_user_is_superuser(current_user):
-                project = project_crud.create_or_update_project(current_user, project_form, project_id)
+                project = project_crud.create_or_update_project(current_user,
+                                                                project_form,
+                                                                project_id,
+                                                                project_charter_file)
+
                 request.access_log.model = project
                 return utils.dashboard_su_redirect_and_toast(request, 'Project is Saved.')
 
-            if (project_crud.current_user_is_project_owner(current_user, project) is True and project.get_is_editable() and not project.archived):
-                project = project_crud.create_or_update_project(current_user, project_form, project_id)
+            elif project.archived:
+                return utils.dashboard_redirect_and_toast(request, 'Project is Archived.')
+
+            elif (project_crud.is_current_project_editable_by_user(current_user, project)):
+                project = project_crud.create_or_update_project(current_user,
+                                                                project_form,
+                                                                project_id,
+                                                                project_charter_file)
                 request.access_log.model = project
             else:
                 return utils.dashboard_redirect_and_toast(request, 'You are not allowed to edit this project'.format(project_id))
