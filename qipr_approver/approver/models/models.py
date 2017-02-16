@@ -130,7 +130,6 @@ class Person(Provenance, Registerable):
             'model_class_name': self.__class__.__name__,
         }
 
-
 class Project(Provenance, Registerable):
     advisor = models.ManyToManyField(Person, related_name="advised_projects")
     approval_date = models.DateTimeField(null=True)
@@ -149,6 +148,7 @@ class Project(Provenance, Registerable):
     title = models.CharField(max_length=300)
     mesh_keyword = models.ManyToManyField(Descriptor, related_name='projects', null=True)
     sent_email_list = models.ManyToManyField(Person, related_name="emailed_for_projects")
+    charter_file = models.FileField(upload_to=utils.project_charter_dir, max_length=200, null=True)
 
     def __str__(self):
         title = self.title or 'NO TITLE'

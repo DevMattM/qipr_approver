@@ -239,6 +239,12 @@ def get_related_property(model, related_model_name, related_model_property='name
     list_of_related_properties = [getattr(item, related_model_property) for item in relateds]
     return [prop for prop in list_of_related_properties if prop != None]
 
+def project_charter_dir(instance, filename):
+    '''
+    Returns the path where project charters should be saved
+    '''
+    return 'project/{0}/{1}'.format(instance.guid, filename)
+
 def check_fields(ModelName,fieldname,type,max_length=None):
     """
     Given a Model checks if the fieldname is of proper type.
