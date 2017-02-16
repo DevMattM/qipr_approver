@@ -6,10 +6,10 @@
 <div class="container">
 
 {% if project_id %}
-<form action="{% url 'approver:projects' project_id=project_id %}" onsubmit="submitProject.disabled=true;" autocomplete="off" method="post">
+    <form action="{% url 'approver:projects' project_id=project_id %}" onsubmit="submitProject.disabled=true;" autocomplete="off" method="post" enctype="multipart/form-data">
 {% endif %}
 {% if not project_id %}
-    <form action="{% url 'approver:projects' %}" onsubmit="submitProject.disabled=true;" autocomplete="off" method="post">
+    <form action="{% url 'approver:projects' %}" onsubmit="submitProject.disabled=true;" autocomplete="off" method="post" enctype="multipart/form-data">
 {% endif %}
     {% csrf_token %}
     {% load form_input %}
@@ -59,6 +59,14 @@
         </div>
         <div class="col s12 m6 bg__tags--blue2 bluebox__height--projectpg">
             {% tagbox form.clinical_area form.is_disabled %}
+        </div>
+    </div>
+
+    <div class="row">
+        <h5 class="project__subhead about__sectionspacing">Project Charter</h5>
+        <div class="col s12 m6 bg__tags--blue1 bluebox__height--projectpg">
+            <label class=".bluebox__height--projectpg .form-tagbox-wrapper tag_label" for="project_charter">Upload your completed project charter if you have one</label>
+            <div class=""><input type="file" name="project_charter" /></div>
         </div>
     </div>
 
